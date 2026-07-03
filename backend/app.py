@@ -2,13 +2,20 @@ from fastapi import FastAPI
 from backend.ollama_client import ask_ollama
 from pydantic import BaseModel
 from backend.solver import solve_expression
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="MathBot API",
     description="Offline AI Math Tutor using Ollama",
     version="1.0.0"
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5500"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 class ChatRequest(BaseModel):
     message: str
 @app.get("/")
