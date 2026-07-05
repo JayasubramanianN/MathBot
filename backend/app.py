@@ -1,14 +1,14 @@
 from fastapi import FastAPI
-from backend.ollama_client import ask_ollama
-from pydantic import BaseModel
-from backend.solver import solve_expression
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.api.chat import router as chat_router
+
 app = FastAPI(
-    title="MathBot API",
-    description="Offline AI Math Tutor using Ollama",
+    title="MathMind AI",
+    description="Offline AI Math Tutor",
     version="1.0.0"
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5500"],
@@ -16,13 +16,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-class ChatRequest(BaseModel):
-    message: str
+
+app.include_router(chat_router)
+
+
 @app.get("/")
 def home():
     return {
-        "message": "Welcome to MathBot!",
-        "status": "Server is running"
+        "message": "Welcome to MathMind AI"
     }
 
 
@@ -30,24 +31,4 @@ def home():
 def health():
     return {
         "status": "healthy"
-    }
-
-@app.post("/chat")
-def chat(request: ChatRequest):
-
-    result = solve_expression(request.message)
-
-    if result is not None:
-        return {
-            "source": "SymPy",
-            "question": request.message,
-            "answer": result
-        }
-
-    answer = ask_ollama(request.message)
-
-    return {
-        "source": "Ollama",
-        "question": request.message,
-        "answer": answer
     }
